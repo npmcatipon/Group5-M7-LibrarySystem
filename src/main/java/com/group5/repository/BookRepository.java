@@ -16,26 +16,35 @@ public class BookRepository implements Repository<Book, Long> {
 
 	@Override
 	public Book save(Book entity) {
-		// TODO Auto-generated method stub
-		return null;
+
+		if (entity.getId() == null) {
+			em.persist(entity);
+		} else {
+			em.merge(entity);
+		}
+		
+		return entity;
+		
 	}
 
 	@Override
 	public void delete(Book entity) {
-		// TODO Auto-generated method stub
-		
+		em.remove(em.contains(entity) ? entity : em.merge(entity));
 	}
 
 	@Override
 	public void deleteById(Long id) {
-		// TODO Auto-generated method stub
 		
+		Book book = findById(id);
+		
+		if (book != null ) {
+			delete(book);
+		}
 	}
 
 	@Override
 	public Book findById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		return em.find(Book.class, id);
 	}
 
 	@Override
@@ -43,4 +52,17 @@ public class BookRepository implements Repository<Book, Long> {
 		return em.createQuery("SELECT b FROM Book b", Book.class).getResultList();
 	}
 	
+	public List<Book> findAvailable() {
+		return em.createQuery("SELECT b FROM Book b WHERE b.isBorrowed = false", Book.class).getResultList();
+				
+	}
+	
+	public List<Book> findBorrowed() {
+		return em.createQuery("SELECT b FROM Book b WHERE b.isBorrowed = true", Book.class).getResultList();
+	}
+	
+	public Book updateBookStatus(Book entity, boolean status) {
+		entity.setIsBorrowed(status);
+		return save(entity);
+	}
 }

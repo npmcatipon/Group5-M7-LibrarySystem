@@ -18,6 +18,8 @@ public class BookService {
 	private final EntityManager em;
 	
 	private List<Book> allBooks = new ArrayList<>();
+	private List<Book> availableBooks = new ArrayList<>();
+	private List<Book> borrowedBooks = new ArrayList<>();
 	
 	public BookService (EntityManager em) {
 		this.em = em;
@@ -26,15 +28,43 @@ public class BookService {
 	
 	public List<BookDTO> getAllBooks() {
 		
-		EntityTransaction tx = em.getTransaction();
-		
-		tx.begin();
-		allBooks = em.createQuery("select b from Book b",Book.class).getResultList();
-		tx.commit();
+		allBooks = bookRepository.findAll();
 		
 		return allBooks.stream()
 				.map(book -> new BookDTO(book))
 				.collect(Collectors.toList());
+	}
+	
+	public List<BookDTO> getAvailableBooks() {
+		
+		availableBooks = bookRepository.findAvailable();
+		
+		return availableBooks.stream()
+				.map(book -> new BookDTO(book))
+				.collect(Collectors.toList());
+	}
+
+	public List<BookDTO> getBorrowedBooks() {
+	
+	borrowedBooks = bookRepository.findBorrowed();
+	
+	return borrowedBooks.stream()
+			.map(book -> new BookDTO(book))
+			.collect(Collectors.toList());
+	}
+	
+	public Book findById(Long id) {
+		return bookRepository.findById(id);
+	}
+	
+	public Book updateBookStatus(Book entity, boolean status) {
+		EntityTransaction tx = em.getTransaction();
+		
+		tx.begin();
+		Book book = bookRepository.updateBookStatus(entity, status);
+		tx.commit();
+		
+		return book;
 	}
 
 }
