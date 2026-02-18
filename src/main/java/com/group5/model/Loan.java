@@ -1,7 +1,5 @@
 package com.group5.model;
 
-import org.hibernate.resource.beans.internal.FallbackBeanInstanceProducer;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table ( name = "loan", schema = "m6")
+@Table ( name = "loan", schema = "m7")
 public class Loan {
 
 	@Id
