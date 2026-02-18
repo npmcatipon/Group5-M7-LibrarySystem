@@ -7,17 +7,9 @@
 
     <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
         
-        <!-- Specify the JPA provider -->
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-		<class>com.group5.model.User</class>
+		
 		<class>com.group5.model.Book</class>
-		<class>com.group5.model.Loan</class>
-
-        <!-- Entity classes (optional, can be auto-scanned) -->
-        <!-- <class>com.example.MyEntity</class> -->
-        
-		<!-- If false, Include all entity classes automatically -->
-        <!-- <exclude-unlisted-classes>false</exclude-unlisted-classes> -->
 
         <properties>
             <!-- JDBC connection properties -->
@@ -29,7 +21,7 @@
             <!-- Hibernate properties -->
             <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/> -->
             <property name="hibernate.hbm2ddl.auto" value="create"/>
-            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>
     </persistence-unit>

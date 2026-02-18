@@ -1,24 +1,70 @@
 package com.group5.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.group5.dto.BookDTO;
 import com.group5.model.Book;
+import com.group5.repository.BookRepository;
 
-public interface BookService {
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+
+public class BookService {
 	
-	List<Book> getAllBooks();
+	private final BookRepository bookRepository;
+	
+	private final EntityManager em;
+	
+	private List<Book> allBooks = new ArrayList<>();
+	private List<Book> availableBooks = new ArrayList<>();
+	private List<Book> borrowedBooks = new ArrayList<>();
+	
+	public BookService (EntityManager em) {
+		this.em = em;
+		this.bookRepository = new BookRepository(em);
+	}
+	
+	public List<BookDTO> getAllBooks() {
+		
+		allBooks = bookRepository.findAll();
+		
+		return allBooks.stream()
+				.map(book -> new BookDTO(book))
+				.collect(Collectors.toList());
+	}
+	
+	public List<BookDTO> getAvailableBooks() {
+		
+		availableBooks = bookRepository.findAvailable();
+		
+		return availableBooks.stream()
+				.map(book -> new BookDTO(book))
+				.collect(Collectors.toList());
+	}
 
-	List<Book> getAvailableBooks();
+	public List<BookDTO> getBorrowedBooks() {
+	
+	borrowedBooks = bookRepository.findBorrowed();
+	
+	return borrowedBooks.stream()
+			.map(book -> new BookDTO(book))
+			.collect(Collectors.toList());
+	}
+	
+	public Book findById(Long id) {
+		return bookRepository.findById(id);
+	}
+	
+	public Book updateBookStatus(Book entity, boolean status) {
+		EntityTransaction tx = em.getTransaction();
+		
+		tx.begin();
+		Book book = bookRepository.updateBookStatus(entity, status);
+		tx.commit();
+		
+		return book;
+	}
 
-	void addBook(Book book);
-
-	Book findById(Long id);
-
-	void updateBorrowBook(Book book);
-
-	void updateReturnBook(Book book);
-
-	void deleteBook(Long id);
-
-	void updateBook(Book book);
 }
