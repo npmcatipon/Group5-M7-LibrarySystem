@@ -40,6 +40,7 @@ public class BookController {
 			return JsonUtil.toJson(response);
 		});
 		
+		// Display All Books
 		get("/allbooks", (req,res) -> {
 			
 			res.type("application/json");
@@ -54,6 +55,7 @@ public class BookController {
 			return JsonUtil.toJson(response);
 		});
 		
+		// Display Available Books
 		get("/availablebooks", (req, res) -> {
 		
 			res.type("application/json");
@@ -68,6 +70,7 @@ public class BookController {
 			return JsonUtil.toJson(response);
 		});
 
+		// Display All Borrowed Books
 		get("/borrowedbooks", (req, res) -> {
 		
 			res.type("application/json");
@@ -82,6 +85,7 @@ public class BookController {
 			return JsonUtil.toJson(response);
 		});
 		
+		// Borrow Book
 		put("/borrow/:id", (req, res) -> {
 			
 			res.type("application/json");
@@ -98,10 +102,34 @@ public class BookController {
 			
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Borrowed book id:" + id);
-			logger.info("Connecting to database to list borrowed books.");
+			logger.info("Book ID: {} has been borrowed.", id);
 		
 			response.setData(bookDTO);
 		
+			return JsonUtil.toJson(response);
+		});
+		
+		// Return Book
+		put("/return/:id", (req, res) -> {
+
+			res.type("application/json");
+
+			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+
+			String id = req.params("id");
+			Book book = bookService.findBorrowedBookById(Long.valueOf(id));
+
+			book = bookService.updateBookStatus(book, false);
+
+			List<BookDTO> bookDTO = new ArrayList<>();
+			bookDTO.add(new BookDTO(book));
+
+			response.setStatus(ResponseStatus.SUCCESS);
+			response.setMessage("Returned book id:" + id);
+			logger.info("Book ID: {} has been returned to the Library.", id);
+
+			response.setData(bookDTO);
+
 			return JsonUtil.toJson(response);
 		});
 		

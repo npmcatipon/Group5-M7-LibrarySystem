@@ -65,4 +65,13 @@ public class BookRepository implements Repository<Book, Long> {
 		entity.setIsBorrowed(status);
 		return save(entity);
 	}
+	
+	public Book findBorrowedBookById(Long id) {
+		return em.createQuery("SELECT b "
+				+ "FROM Book b "
+				+ "WHERE b.isBorrowed = true and "
+				+ "b.id = :id",Book.class)
+			.setParameter("id", id)
+			.getSingleResult();
+	}
 }
