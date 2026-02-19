@@ -57,6 +57,10 @@ public class BookService {
 		return bookRepository.findById(id);
 	}
 	
+	public Book findBorrowedBookById(Long id) {
+		return bookRepository.findBorrowedBookById(id);
+	}
+	
 	public Book updateBookStatus(Book entity, boolean status) {
 		EntityTransaction tx = em.getTransaction();
 		
