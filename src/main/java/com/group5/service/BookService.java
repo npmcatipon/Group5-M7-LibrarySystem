@@ -70,5 +70,15 @@ public class BookService {
 		
 		return book;
 	}
+	
+	public Book addBook(Book entity) {
+		EntityTransaction tx = em.getTransaction();
+		
+		tx.begin();
+		bookRepository.save(entity);
+		tx.commit();
+		
+		return entity;
+	}
 
 }

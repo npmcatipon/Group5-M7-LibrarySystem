@@ -44,13 +44,10 @@ public class BookController {
 		get("/allbooks", (req,res) -> {
 			
 			res.type("application/json");
-			ResponseDTO<List <BookDTO>> response = new ResponseDTO<>();
+			ResponseDTO<List <BookDTO>> response = 
+					new ResponseDTO<>(ResponseStatus.SUCCESS, "List of Available Books", this.bookService.getAllBooks());
 			
-			response.setStatus(ResponseStatus.SUCCESS);
-			response.setMessage("Retrieving list of all books.");
-			logger.info("Connecting to database to list all books.");
-			
-			response.setData(this.bookService.getAllBooks());
+			logger.info("Listing all books.");
 			
 			return JsonUtil.toJson(response);
 		});
@@ -59,13 +56,10 @@ public class BookController {
 		get("/availablebooks", (req, res) -> {
 		
 			res.type("application/json");
-			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			ResponseDTO<List<BookDTO>> response = 
+					new ResponseDTO<>(ResponseStatus.SUCCESS, "List of Available Books", this.bookService.getAvailableBooks());
 		
-			response.setStatus(ResponseStatus.SUCCESS);
-			response.setMessage("Retrieving list of available books.");
-			logger.info("Connecting to database to list available books.");
-		
-			response.setData(this.bookService.getAvailableBooks());
+			logger.info("Listing all available books.");
 		
 			return JsonUtil.toJson(response);
 		});
@@ -74,13 +68,10 @@ public class BookController {
 		get("/borrowedbooks", (req, res) -> {
 		
 			res.type("application/json");
-			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			ResponseDTO<List<BookDTO>> response = 
+					new ResponseDTO<>(ResponseStatus.SUCCESS,"List of borrow books.",this.bookService.getBorrowedBooks());
 		
-			response.setStatus(ResponseStatus.SUCCESS);
-			response.setMessage("Retrieving list of borrowed books.");
-			logger.info("Connecting to database to list borrowed books.");
-		
-			response.setData(this.bookService.getBorrowedBooks());
+			logger.info("Listing all borrowed book.");
 		
 			return JsonUtil.toJson(response);
 		});
@@ -129,6 +120,31 @@ public class BookController {
 			logger.info("Book ID: {} has been returned to the Library.", id);
 
 			response.setData(bookDTO);
+
+			return JsonUtil.toJson(response);
+		});
+		
+		// Add Book
+		post("/addbook", (req, res) -> {
+
+			res.type("application/json");
+
+			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			
+			if (req.body().isBlank() || req.body() == null) {
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Invalid Add Book.");
+				return JsonUtil.toJson(response);
+			}
+			
+			BookDTO bookDTO = JsonUtil.fromJson(req.body(), BookDTO.class);
+			
+			Book newBook = bookService.addBook(bookDTO.toEntity());
+			
+			response.setStatus(ResponseStatus.SUCCESS);
+			response.setMessage("Added book");
+			response.setData(new ArrayList<BookDTO>(List.of(new BookDTO(newBook))));
+			logger.info("Add new book");
 
 			return JsonUtil.toJson(response);
 		});
