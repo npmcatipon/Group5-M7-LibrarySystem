@@ -124,6 +124,31 @@ public class BookController {
 			return JsonUtil.toJson(response);
 		});
 		
+		// Add Book
+		post("/addbook", (req, res) -> {
+
+			res.type("application/json");
+
+			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			
+			if (req.body().isBlank() || req.body() == null) {
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Invalid Add Book.");
+				return JsonUtil.toJson(response);
+			}
+			
+			BookDTO bookDTO = JsonUtil.fromJson(req.body(), BookDTO.class);
+			
+			Book newBook = bookService.addBook(bookDTO.toEntity());
+			
+			response.setStatus(ResponseStatus.SUCCESS);
+			response.setMessage("Added book");
+			response.setData(new ArrayList<BookDTO>(List.of(new BookDTO(newBook))));
+			logger.info("Add new book");
+
+			return JsonUtil.toJson(response);
+		});
+		
 	}
 
 }
