@@ -16,8 +16,8 @@ psql.exe -U postgres -d group5 -f insert-data.sql
    - [x] d. Borrow Book  
    - [x] e. Return Book  
    - [x] f. Add Book  
-   - [ ] g. Remove Book  
-   - [ ] h. Update Book  
+   - [x] g. Remove Book  
+   - [x] h. Update Book  
 - [x] 4. All interactions (input and output) must be made through the API.  
 - [ ] 5. Create an API specification for your API. It must at least indicate the HTTP Method, Resource Path, Query Parameters, URI Parameters, Request Body, and the Response Body.  
 - [ ] 6. Bonus Points:  
