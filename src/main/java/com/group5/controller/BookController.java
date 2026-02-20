@@ -144,7 +144,55 @@ public class BookController {
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Added book");
 			response.setData(new ArrayList<BookDTO>(List.of(new BookDTO(newBook))));
-			logger.info("Add new book");
+			logger.info("Add BookID: {}, Book Title: {}, Book Author: {} to the Library.", newBook.getId(), newBook.getTitle(), newBook.getAuthor());
+
+			return JsonUtil.toJson(response);
+		});
+		
+		// Remove Book
+		put("/removebook/:id", (req, res) -> {
+
+			res.type("application/json");
+
+			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			
+			String id = req.params("id");
+			
+			Book book = bookService.findById(Long.valueOf(id));
+			
+			bookService.removeBook(Long.valueOf(id));
+			
+			response.setStatus(ResponseStatus.SUCCESS);
+			response.setMessage("Book ID " + id + " has been removed from the Library");
+			response.setData(List.of(new BookDTO(book)));
+
+			return JsonUtil.toJson(response);
+		});
+		
+		// Update Book
+		post("/updatebook", (req, res) -> {
+
+			res.type("application/json");
+
+			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
+			
+			if (req.body().isBlank() || req.body() == null) {
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Invalid Add Book.");
+				return JsonUtil.toJson(response);
+			}
+			
+			BookDTO bookDTO = JsonUtil.fromJson(req.body(), BookDTO.class);
+			
+			if (bookDTO.getId() == null || bookDTO.getTitle().isEmpty() || bookDTO.getAuthor().isEmpty()) {
+				throw new IllegalArgumentException("Invalid Update");
+			}
+			
+			bookDTO = new BookDTO(bookService.addBook(bookDTO.toEntity()));
+			
+			response.setStatus(ResponseStatus.SUCCESS);
+			response.setMessage("Book ID " + bookDTO.getId() + " has been updated.");
+			response.setData(List.of(bookDTO));
 
 			return JsonUtil.toJson(response);
 		});

@@ -75,10 +75,31 @@ public class BookService {
 		EntityTransaction tx = em.getTransaction();
 		
 		tx.begin();
-		bookRepository.save(entity);
+		Book book = bookRepository.save(entity);
 		tx.commit();
 		
-		return entity;
+		return book;
 	}
-
+	
+	public void removeBook(Long id) {
+		EntityTransaction tx = em.getTransaction();
+		
+		tx.begin();
+		bookRepository.deleteById(id);
+		em.flush();
+		tx.commit();
+	}
+	
+	public Book updateBook(Book entity) {
+		EntityTransaction tx = em.getTransaction();
+		
+		tx.begin();
+		
+		Book updatedBook = bookRepository.save(entity);
+		
+		tx.commit();
+		
+		return updatedBook;
+	}
+	
 }
