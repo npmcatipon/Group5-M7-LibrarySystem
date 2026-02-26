@@ -1,7 +1,9 @@
 package com.group5.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.group5.util.ResponseStatus;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseDTO<T> {
 	
 	private ResponseStatus status;
@@ -15,6 +17,12 @@ public class ResponseDTO<T> {
 		this.status = status;
 		this.message = message;
 		this.data = data;
+	}
+	
+	public ResponseDTO(ResponseStatus status, String message) {
+		super();
+		this.status = status;
+		this.message = message;
 	}
 
 	public ResponseStatus getStatus() {

@@ -45,7 +45,9 @@ public class BookController {
 			
 			res.type("application/json");
 			ResponseDTO<List <BookDTO>> response = 
-					new ResponseDTO<>(ResponseStatus.SUCCESS, "List of Available Books", this.bookService.getAllBooks());
+					new ResponseDTO<>(ResponseStatus.SUCCESS,
+                                      "List of All Books",
+                                      this.bookService.getAllBooks());
 			
 			logger.info("Listing all books.");
 			
@@ -57,7 +59,9 @@ public class BookController {
 		
 			res.type("application/json");
 			ResponseDTO<List<BookDTO>> response = 
-					new ResponseDTO<>(ResponseStatus.SUCCESS, "List of Available Books", this.bookService.getAvailableBooks());
+					new ResponseDTO<>(ResponseStatus.SUCCESS,
+                                      "List of Available Books",
+                                      this.bookService.getAvailableBooks());
 		
 			logger.info("Listing all available books.");
 		
@@ -69,7 +73,9 @@ public class BookController {
 		
 			res.type("application/json");
 			ResponseDTO<List<BookDTO>> response = 
-					new ResponseDTO<>(ResponseStatus.SUCCESS,"List of borrow books.",this.bookService.getBorrowedBooks());
+					new ResponseDTO<>(ResponseStatus.SUCCESS,
+                                      "List of Borrowed Books.",
+                                      this.bookService.getBorrowedBooks());
 		
 			logger.info("Listing all borrowed book.");
 		
@@ -93,10 +99,10 @@ public class BookController {
 			
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Borrowed book id:" + id);
-			logger.info("Book ID: {} has been borrowed.", id);
-		
 			response.setData(bookDTO);
-		
+
+			logger.info("Book ID: {} has been borrowed.", id);
+
 			return JsonUtil.toJson(response);
 		});
 		
@@ -117,9 +123,9 @@ public class BookController {
 
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Returned book id:" + id);
-			logger.info("Book ID: {} has been returned to the Library.", id);
-
 			response.setData(bookDTO);
+
+			logger.info("Book ID: {} has been returned to the Library.", id);
 
 			return JsonUtil.toJson(response);
 		});
@@ -131,20 +137,42 @@ public class BookController {
 
 			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
 			
-			if (req.body().isBlank() || req.body() == null) {
+			if (req.body() == null || req.body().isBlank()) {
+				res.status(422);
 				response.setStatus(ResponseStatus.ERROR);
-				response.setMessage("Invalid Add Book.");
+				response.setMessage("Request body is required.");
 				return JsonUtil.toJson(response);
 			}
 			
 			BookDTO bookDTO = JsonUtil.fromJson(req.body(), BookDTO.class);
 			
-			Book newBook = bookService.addBook(bookDTO.toEntity());
+			if (bookDTO.getTitle() == null || 
+					bookDTO.getTitle().isBlank()) {
+				res.status(422);
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Title cannot be empty or null.");
+				response.setData(null);
+				return JsonUtil.toJson(response);
+			}
 			
+			if (bookDTO.getAuthor()== null ||
+					bookDTO.getAuthor().isBlank()) {
+				res.status(422);
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Author cannot be empty or null.");
+				return JsonUtil.toJson(response);				
+			}
+					
+			
+			Book newBook = bookService.addBook(bookDTO.toEntity());
+
+			res.status(201);
+
 			response.setStatus(ResponseStatus.SUCCESS);
-			response.setMessage("Added book");
+			response.setMessage("Book Added");
 			response.setData(new ArrayList<BookDTO>(List.of(new BookDTO(newBook))));
-			logger.info("Add BookID: {}, Book Title: {}, Book Author: {} to the Library.", newBook.getId(), newBook.getTitle(), newBook.getAuthor());
+
+			logger.info("Added BookID: {}, Book Title: {}, Book Author: {} to the Library.", newBook.getId(), newBook.getTitle(), newBook.getAuthor());
 
 			return JsonUtil.toJson(response);
 		});
@@ -158,10 +186,25 @@ public class BookController {
 			
 			String id = req.params("id");
 			
+			if (id == null || id.isBlank()) {
+				res.status(400);
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Invalid ID number");
+				return JsonUtil.toJson(response);
+			}
+			
 			Book book = bookService.findById(Long.valueOf(id));
+			
+			if (book == null) {
+				res.status(404);
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Book ID not found");
+				return JsonUtil.toJson(response);
+			}
 			
 			bookService.removeBook(Long.valueOf(id));
 			
+			res.status(200);
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Book ID " + id + " has been removed from the Library");
 			response.setData(List.of(new BookDTO(book)));
@@ -176,20 +219,26 @@ public class BookController {
 
 			ResponseDTO<List<BookDTO>> response = new ResponseDTO<>();
 			
-			if (req.body().isBlank() || req.body() == null) {
+			if (req.body() == null ||
+					req.body().isBlank()) {
+				res.status(400);
 				response.setStatus(ResponseStatus.ERROR);
-				response.setMessage("Invalid Add Book.");
+				response.setMessage("Request body is required.");
 				return JsonUtil.toJson(response);
 			}
 			
 			BookDTO bookDTO = JsonUtil.fromJson(req.body(), BookDTO.class);
 			
-			if (bookDTO.getId() == null || bookDTO.getTitle().isEmpty() || bookDTO.getAuthor().isEmpty()) {
-				throw new IllegalArgumentException("Invalid Update");
+			if (bookDTO.getId() == null) {
+				res.status(409);
+				response.setStatus(ResponseStatus.ERROR);
+				response.setMessage("Book ID not found.");
+				return JsonUtil.toJson(response);
 			}
 			
 			bookDTO = new BookDTO(bookService.addBook(bookDTO.toEntity()));
 			
+			res.status(200);
 			response.setStatus(ResponseStatus.SUCCESS);
 			response.setMessage("Book ID " + bookDTO.getId() + " has been updated.");
 			response.setData(List.of(bookDTO));
